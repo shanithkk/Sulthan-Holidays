@@ -1,0 +1,175 @@
+@import "tailwindcss";
+
+/* Wayanad green-glass theme */
+@theme {
+  --color-leaf-50: #f0fbf4;
+  --color-leaf-100: #dcf5e5;
+  --color-leaf-200: #bce9cd;
+  --color-leaf-300: #8fd6ac;
+  --color-leaf-400: #5bbd84;
+  --color-leaf-500: #34a068;
+  --color-leaf-600: #25814f;
+  --color-leaf-700: #1f6841;
+  --color-leaf-800: #1c5236;
+  --color-leaf-900: #123826;
+  --color-sun-400: #fbbf4a;
+  --color-sun-500: #f59e0b;
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ---- Theme variables (light is default; the .dark class on <html> switches) ---- */
+:root {
+  color-scheme: light;
+  --text: var(--color-leaf-900);
+  /* Light mode = the original soft green look. Only the map outline and spots are fluorescent. */
+  --page-bg:
+    radial-gradient(60rem 40rem at 10% -10%, #c9f1d9 0%, transparent 60%),
+    radial-gradient(50rem 40rem at 100% 10%, #e3f7c9 0%, transparent 55%),
+    radial-gradient(50rem 40rem at 40% 110%, #b5ead0 0%, transparent 60%),
+    linear-gradient(180deg, #f2fcf6, #e4f6ea);
+  --glass-bg: rgba(255, 255, 255, 0.55);
+  --glass-bg-strong: rgba(255, 255, 255, 0.78);
+  --glass-edge: rgba(255, 255, 255, 0.75);
+  --glass-edge-strong: rgba(255, 255, 255, 0.9);
+  --glass-shadow: 0 8px 32px rgba(31, 104, 65, 0.12);
+  --glass-shadow-strong: 0 12px 40px rgba(31, 104, 65, 0.16);
+  --field-bg: rgba(255, 255, 255, 0.8);
+  --ghost-bg: rgba(255, 255, 255, 0.6);
+  --ghost-bg-hover: rgba(255, 255, 255, 0.9);
+  /* Fluorescent green for the Wayanad outline and spots. */
+  --neon: #00f06a;
+  --map-fill: rgba(0, 240, 106, 0.1);
+  --map-ring: #0b3322; /* dark ring keeps the neon dots readable on a light page */
+  --map-glow: drop-shadow(0 0 5px rgba(0, 240, 106, 0.85));
+  --map-label: #0b3322;
+  --map-label-halo: rgba(255, 255, 255, 0.9);
+}
+
+.dark {
+  color-scheme: dark;
+  /* Matte black. Surfaces are neutral greys; green is kept only for accents and the map. */
+  --color-leaf-50: #161616;
+  --color-leaf-100: #1c1c1c;
+  --color-leaf-200: #2e2e2e;
+  --color-leaf-300: #3f6f55;
+  --color-leaf-400: #3fbf7a;
+  --color-leaf-500: #34d27f;
+  --color-leaf-600: #1f9a5b;
+  --color-leaf-700: #5be39a;
+  --color-leaf-800: #d0d0d0;
+  --color-leaf-900: #f2f2f2;
+  --page-bg: #0a0a0a;
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-bg-strong: rgba(24, 24, 24, 0.82);
+  --glass-edge: rgba(255, 255, 255, 0.1);
+  --glass-edge-strong: rgba(255, 255, 255, 0.14);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  --glass-shadow-strong: 0 12px 40px rgba(0, 0, 0, 0.7);
+  --field-bg: rgba(255, 255, 255, 0.06);
+  --ghost-bg: rgba(255, 255, 255, 0.07);
+  --ghost-bg-hover: rgba(255, 255, 255, 0.15);
+  --neon: #1aff7a;
+  --map-fill: rgba(26, 255, 122, 0.05);
+  --map-ring: #0a0a0a;
+  --map-glow: drop-shadow(0 0 6px rgba(26, 255, 122, 0.9));
+  --map-label: #eafff3;
+  --map-label-halo: rgba(10, 10, 10, 0.9);
+}
+
+body {
+  min-height: 100vh;
+  color: var(--text);
+  background: var(--page-bg);
+  background-attachment: fixed;
+}
+
+/* Wayanad map behind everything: large, never blocks clicks. */
+.wayanad-bg {
+  position: fixed;
+  z-index: -1;
+  pointer-events: none;
+  top: 6vh;
+  right: -8vw;
+  width: min(78vw, 980px);
+  aspect-ratio: 684 / 555;
+  opacity: 0.85;
+}
+@media (max-width: 768px) {
+  .wayanad-bg { right: -25vw; width: 130vw; top: 18vh; opacity: 0.6; }
+}
+
+/* ---- Glass ---- */
+.glass {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  backdrop-filter: blur(18px) saturate(150%);
+  border: 1px solid var(--glass-edge);
+  box-shadow: var(--glass-shadow);
+  border-radius: 1.25rem;
+}
+.glass-strong {
+  background: var(--glass-bg-strong);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid var(--glass-edge-strong);
+  box-shadow: var(--glass-shadow-strong);
+  border-radius: 1.25rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  padding: 0.65rem 1.4rem;
+  font-weight: 600;
+  transition: transform 0.15s, background-color 0.15s, box-shadow 0.15s;
+  cursor: pointer;
+}
+.btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-primary {
+  background: var(--color-leaf-600);
+  color: white;
+  box-shadow: 0 6px 18px rgba(37, 129, 79, 0.35);
+}
+.btn-primary:hover:not(:disabled) { background: var(--color-leaf-700); transform: translateY(-1px); }
+.btn-accent {
+  background: var(--color-sun-400);
+  color: #123826; /* fixed dark: it sits on amber in both themes */
+  box-shadow: 0 6px 18px rgba(245, 158, 11, 0.35);
+}
+.btn-accent:hover:not(:disabled) { background: var(--color-sun-500); transform: translateY(-1px); }
+.btn-ghost {
+  background: var(--ghost-bg);
+  border: 1px solid var(--glass-edge);
+  color: var(--color-leaf-800);
+}
+.btn-ghost:hover:not(:disabled) { background: var(--ghost-bg-hover); }
+.dark .btn-primary:hover:not(:disabled) { background: #22a86a; }
+
+.field {
+  width: 100%;
+  border-radius: 0.85rem;
+  border: 1px solid var(--color-leaf-200);
+  background: var(--field-bg);
+  color: var(--color-leaf-900);
+  padding: 0.65rem 0.9rem;
+  outline: none;
+}
+.field:focus { border-color: var(--color-leaf-500); box-shadow: 0 0 0 3px rgba(52, 160, 104, 0.2); }
+.label { display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.3rem; color: var(--color-leaf-800); }
+
+/* Status/alert colours that were picked for a light page: soften them in dark mode. */
+.dark .bg-red-50 { background: rgba(248, 113, 113, 0.16); }
+.dark .text-red-700 { color: #fca5a5; }
+.dark .bg-amber-50, .dark .bg-amber-100 { background: rgba(251, 191, 36, 0.16); }
+.dark .text-amber-800 { color: #fcd34d; }
+.dark .bg-sky-100 { background: rgba(56, 189, 248, 0.16); }
+.dark .text-sky-800 { color: #7dd3fc; }
+.dark .bg-zinc-100, .dark .bg-zinc-200 { background: rgba(255, 255, 255, 0.1); }
+.dark .text-zinc-700 { color: #d4d4d8; }
+
+.theme-icon-dark { display: none; }
+.dark .theme-icon-dark { display: block; }
+.dark .theme-icon-light { display: none; }
