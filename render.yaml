@@ -1,0 +1,36 @@
+# Render Blueprint for the API. See docs/DEPLOY.md ("Branch workflow and build filters").
+# Secret values are not stored here: `sync: false` makes Render ask for them in the dashboard.
+services:
+  - type: web
+    name: sulthan-api
+    runtime: docker
+    plan: free
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    autoDeploy: true
+    # Redeploy only when something under backend/ changes (paths are relative to the repo root).
+    buildFilter:
+      paths:
+        - backend/**
+    envVars:
+      - key: BIND_ADDR
+        value: 0.0.0.0:10000
+      - key: UPI_PAYEE
+        value: Sulthan Holidays
+      - key: ADVANCE_PERCENT
+        value: "25"
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: UPI_ID
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false

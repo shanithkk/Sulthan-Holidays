@@ -1,0 +1,18 @@
+# Local Postgres for development. See docs/SETUP.md.
+#   docker compose up -d db
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: sulthan
+      POSTGRES_PASSWORD: sulthan
+      POSTGRES_DB: sulthan_holidays
+    ports:
+      # Host port 5433 (not 5432) so it does not clash with a Postgres already installed on the machine.
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
