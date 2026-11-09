@@ -15,16 +15,32 @@ mod vehicles;
 
 use axum::{
     Json, Router,
-    extract::DefaultBodyLimit,
-    http::{HeaderValue, Method, header},
-    middleware,
+    extract::{DefaultBodyLimit, Request, State},
+    http::{HeaderValue, Method, StatusCode, header},
+    middleware::{self, Next},
     response::Response,
     routing::{get, patch, post, put},
 };
 use config::{AppState, Config};
 use sqlx::postgres::PgPoolOptions;
-use std::{net::SocketAddr, sync::Arc};
-use tower_http::{cors::CorsLayer, trace::TraceLayer};
+use std::{net::SocketAddr, sync::Arc, time::Duration};
+use tower::limit::ConcurrencyLimitLayer;
+use tower_http::{cors::CorsLayer, timeout::TimeoutLayer, trace::TraceLayer};
+
+/// Safety net for every endpoint: at most 300 requests per minute from one IP.
+/// (Login, register, etc. have their own, much stricter limits.) The health check is exempt.
+async fn global_limit(
+    State(s): State<AppState>,
+    ratelimit::ClientIp(ip): ratelimit::ClientIp,
+    req: Request,
+    next: Next,
+) -> Result<Response, error::AppError> {
+    if req.uri().path() != "/api/health" {
+        s.limiter
+            .check(&format!("global:{ip}"), 300, Duration::from_secs(60))?;
+    }
+    Ok(next.run(req).await)
+}
 
 /// Defensive headers on every API response. The API only serves JSON and photos, so the
 /// CSP forbids everything else; photos are still usable in <img> tags on other sites.
@@ -135,8 +151,16 @@ fn router(state: AppState) -> Router {
     Router::new()
         .nest("/api", public)
         .nest("/api/admin", admin)
+        .layer(middleware::from_fn_with_state(state.clone(), global_limit))
         .layer(middleware::map_response(security_headers))
         .layer(cors)
+        // Cut off slow or stalled requests, and cap how many are handled at once, so a flood
+        // cannot tie up every database connection.
+        .layer(TimeoutLayer::with_status_code(
+            StatusCode::REQUEST_TIMEOUT,
+            Duration::from_secs(15),
+        ))
+        .layer(ConcurrencyLimitLayer::new(100))
         .layer(TraceLayer::new_for_http())
         .with_state(state)
 }

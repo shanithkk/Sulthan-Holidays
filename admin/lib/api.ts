@@ -37,9 +37,16 @@ export async function api<T>(path: string, init: RequestInit & { json?: unknown 
   return data as T;
 }
 
+/** Public website address. Photos shipped with the site ("/images/...") are served from there, not by this app. */
+const SITE = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/+$/, "");
+
 /** Uploaded photos are stored as "/api/media/<id>"; the API server (not this app) serves them. */
-export const imgUrl = (src: string | null): string | null =>
-  src && src.startsWith("/api/media/") ? `${new URL(API).origin}${src}` : src;
+export const imgUrl = (src: string | null): string | null => {
+  if (!src) return src;
+  if (src.startsWith("/api/media/")) return `${new URL(API).origin}${src}`;
+  if (src.startsWith("/images/")) return `${SITE}${src}`;
+  return src;
+};
 
 /** Upload a photo file; returns the stored path ("/api/media/<id>"). */
 export async function uploadPhoto(file: File): Promise<string> {

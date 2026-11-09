@@ -96,6 +96,12 @@ pub async fn create(
     CustomerAuth(uid): CustomerAuth,
     Json(b): Json<BookingIn>,
 ) -> AppResult<Json<BookingView>> {
+    // Stop one account from creating bookings in a loop.
+    s.limiter.check(
+        &format!("booking:{uid}"),
+        10,
+        std::time::Duration::from_secs(3600),
+    )?;
     let phone: Option<String> = sqlx::query_scalar("SELECT phone FROM users WHERE id = $1")
         .bind(uid)
         .fetch_one(&s.db)
